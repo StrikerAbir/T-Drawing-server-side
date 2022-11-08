@@ -15,7 +15,6 @@ const password = process.env.PASS
 
 // mongodb and api
 const uri = `mongodb+srv://${user}:${password}@cluster0.nvx6pod.mongodb.net/?retryWrites=true&w=majority`;
-console.log(uri);
 
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -29,10 +28,19 @@ async function run() {
 
     // all services api
       app.get("/services", async (req, res) => {
-        const query = {};
-        const cursor = servicesCollection.find(query);
-        const services = await cursor.toArray();
-        res.send(services);
+          console.log(req.query.count)
+          const query = {};
+          const count = parseInt(req.query.count);
+          if (count) {
+              const cursor = servicesCollection.find(query);
+              const services = await cursor.limit(count).toArray();
+             res.send(services);     
+          } else {
+              const cursor = servicesCollection.find(query);
+              const services = await cursor.toArray();
+              res.send(services); 
+          }
+          
       });
 
     
