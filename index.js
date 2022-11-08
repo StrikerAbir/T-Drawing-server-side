@@ -4,6 +4,7 @@ const app = express();
 const port = process.env.PORT || 1000;
 const { MongoClient, ServerApiVersion } = require("mongodb");
 require('dotenv').config();
+const jwt = require("jsonwebtoken");
 
 // middleware
 app.use(cors());
@@ -12,6 +13,7 @@ app.use(express.json());
 // env variable datas
 const user = process.env.DB_USER;
 const password = process.env.PASS
+const Secret = process.env.ACCESS_TOKEN_SECRET;
 
 // mongodb and api
 const uri = `mongodb+srv://${user}:${password}@cluster0.nvx6pod.mongodb.net/?retryWrites=true&w=majority`;
@@ -22,13 +24,37 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
+function verifyJWT(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    res.status(401).send({ message: "Unauthorized access" });
+  }
+  const token = authHeader.split(" ")[1];
+  jwt.verify(token, Secret, function (err, decoded) {
+    if (err) {
+      res.status(401).send({ message: "Unauthorized access" });
+    }
+    req.decoded = decoded;
+    next();
+  });
+}
+
 async function run() {
   try {
-    const servicesCollection= client.db('tDrawing').collection('services')
+      const servicesCollection = client.db('tDrawing').collection('services')
+      
+      //jwt api
+      app.post("/jwt", (req, res) => {
+        const user = req.body;
+        console.log(user);
+        const token = jwt.sign(user, Secret, { expiresIn: "1000d" });
+        res.send({ token });
+      });
 
-    // all services api
+    //* all services api
+      
+    //   get services data
       app.get("/services", async (req, res) => {
-          console.log(req.query.count)
           const query = {};
           const count = parseInt(req.query.count);
           if (count) {
@@ -40,6 +66,8 @@ async function run() {
               const services = await cursor.toArray();
               res.send(services); 
           }
+
+       
           
       });
 
