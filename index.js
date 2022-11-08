@@ -55,20 +55,25 @@ async function run() {
       
     //   get services data
       app.get("/services", async (req, res) => {
-          const query = {};
-          const count = parseInt(req.query.count);
-          if (count) {
-              const cursor = servicesCollection.find(query);
-              const services = await cursor.limit(count).toArray();
-             res.send(services);     
-          } else {
-              const cursor = servicesCollection.find(query);
-              const services = await cursor.toArray();
-              res.send(services); 
-          }
+        const query = {};
+        const count = parseInt(req.query.count);
+        if (count) {
+          const cursor = servicesCollection.find(query);
+          const services = await cursor.limit(count).toArray();
+          res.send(services);
+        } else {
+          const cursor = servicesCollection.find(query);
+          const services = await cursor.toArray();
+          res.send(services);
+        }
 
-       
-          
+        //   post a single service
+        app.post("/services", verifyJWT, async (req, res) => {
+          const service = req.body;
+          console.log(service);
+          const result = await servicesCollection.insertOne(service);
+          res.send(result);
+        });
       });
 
     
