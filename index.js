@@ -59,7 +59,7 @@ async function run() {
       const query = {};
       const count = parseInt(req.query.count);
       if (count) {
-        const cursor = servicesCollection.find(query);
+        const cursor = servicesCollection.find(query).sort({service_id:-1});
         const services = await cursor.limit(count).toArray();
         res.send(services);
       } else {
@@ -91,7 +91,6 @@ async function run() {
     //   get all reviews in ascending order
     app.get("/reviews", async (req, res) => {
       const sid = req.query.sid;
-      console.log(sid);
       const query = { serviceId: sid };
       const cursor = reviewsCollection.find(query).sort({ time: -1 });
       const result = await cursor.toArray();
