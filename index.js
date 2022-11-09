@@ -87,23 +87,25 @@ async function run() {
     });
 
     // *all reviews api
-      
-    //   get all reviews
+
+    //   get all reviews in ascending order
     app.get("/reviews", async (req, res) => {
-      const query = {};
-      const cursor = reviewsCollection.find(query);
+      const sid = req.query.sid;
+      console.log(sid);
+      const query = { serviceId: sid };
+      const cursor = reviewsCollection.find(query).sort({ time: -1 });
       const result = await cursor.toArray();
       res.send(result);
     });
-      
+
     // post a single review
-      app.post("/reviews", async (req, res) => {
-           const review = req.body;
-           console.log(review);
-           const result = await reviewsCollection.insertOne(review);
-           res.send(result);
-      })
-      
+    app.post("/reviews", async (req, res) => {
+      const review = req.body;
+      console.log(review);
+      const result = await reviewsCollection.insertOne(review);
+      res.send(result);
+    });
+
     //   -----------------------------------    //
   } finally {
   }
