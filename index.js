@@ -94,7 +94,6 @@ async function run() {
     app.get("/reviews", verifyJWT, async (req, res) => {
       const email = req.query.email;
       const decoded = req.decoded;
-      console.log(decoded, email);
       if (decoded.email !== email) {
         res.status(403).send({ message: "Forbidden Access" });
       }
@@ -121,10 +120,18 @@ async function run() {
     // post a single review
     app.post("/reviews", verifyJWT, async (req, res) => {
       const review = req.body;
-      console.log(review);
       const result = await reviewsCollection.insertOne(review);
       res.send(result);
     });
+
+    //   delete a single review
+      app.delete('/reviews/:id', verifyJWT, async (req, res) => {
+          const id = req.params.id;
+          console.log('delee' ,id);
+          const query = { _id: ObjectId(id) };
+          const result = await reviewsCollection.deleteOne(query);
+          res.send(result);
+      })
 
     //   -----------------------------------    //
   } finally {
