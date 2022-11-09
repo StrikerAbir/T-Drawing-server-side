@@ -109,7 +109,7 @@ async function run() {
     });
 
     //   get all reviews in ascending order for individual service
-    app.get("/reviews", async (req, res) => {
+    app.get("/reviews/all", async (req, res) => {
       const sid = req.query.sid;
       const query = { serviceId: sid };
       const cursor = reviewsCollection.find(query).sort({ time: -1 });
