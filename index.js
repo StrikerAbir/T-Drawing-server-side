@@ -35,6 +35,7 @@ function verifyJWT(req, res, next) {
       res.status(401).send({ message: "Unauthorized access" });
     }
     req.decoded = decoded;
+    //   console.log(decoded);
     next();
   });
 }
@@ -48,7 +49,8 @@ async function run() {
     app.post("/jwt", (req, res) => {
       const user = req.body;
       console.log(user);
-      const token = jwt.sign(user, Secret, { expiresIn: "1000d" });
+      const token = jwt.sign(user, Secret, { expiresIn: "7d" });
+      console.log(token);
       res.send({ token });
     });
 
@@ -59,7 +61,7 @@ async function run() {
       const query = {};
       const count = parseInt(req.query.count);
       if (count) {
-        const cursor = servicesCollection.find(query).sort({service_id:-1});
+        const cursor = servicesCollection.find(query).sort({ service_id: -1 });
         const services = await cursor.limit(count).toArray();
         res.send(services);
       } else {
@@ -88,7 +90,26 @@ async function run() {
 
     // *all reviews api
 
-    //   get all reviews in ascending order
+    //   get all reviews in ascending order for individual user
+    app.get("/reviews", verifyJWT, async (req, res) => {
+      const email = req.query.email;
+      const decoded = req.decoded;
+      console.log(decoded, email);
+      if (decoded.email !== email) {
+        res.status(403).send({ message: "Forbidden Access" });
+      }
+      let query = {};
+      if (email) {
+        query = { userEmail: email };
+      }
+      console.log(query);
+
+      const cursor = reviewsCollection.find(query).sort({ time: -1 });
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    //   get all reviews in ascending order for individual service
     app.get("/reviews", async (req, res) => {
       const sid = req.query.sid;
       const query = { serviceId: sid };
@@ -98,7 +119,7 @@ async function run() {
     });
 
     // post a single review
-    app.post("/reviews", async (req, res) => {
+    app.post("/reviews", verifyJWT, async (req, res) => {
       const review = req.body;
       console.log(review);
       const result = await reviewsCollection.insertOne(review);
