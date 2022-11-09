@@ -81,7 +81,7 @@ async function run() {
     });
 
     //   post a single service
-    app.post("/services", verifyJWT, async (req, res) => {
+    app.post("/services",  async (req, res) => {
       const service = req.body;
       console.log(service);
       const result = await servicesCollection.insertOne(service);
@@ -118,14 +118,14 @@ async function run() {
     });
 
     // post a single review
-    app.post("/reviews", verifyJWT, async (req, res) => {
+    app.post("/reviews",  async (req, res) => {
       const review = req.body;
       const result = await reviewsCollection.insertOne(review);
       res.send(result);
     });
 
     //   delete a single review
-      app.delete('/reviews/:id', verifyJWT, async (req, res) => {
+      app.delete('/reviews/:id',  async (req, res) => {
           const id = req.params.id;
           console.log('delee' ,id);
           const query = { _id: ObjectId(id) };
@@ -134,7 +134,7 @@ async function run() {
       })
 
     //   update a single review
-      app.patch("/reviews/:id", verifyJWT, async (req, res) => {
+      app.patch("/reviews/:id",  async (req, res) => {
         const id = req.params.id;
           const { rating, comment, time } = req.body;
           console.log(rating, comment, time);
