@@ -137,13 +137,13 @@ async function run() {
       app.patch("/reviews/:id", verifyJWT, async (req, res) => {
         const id = req.params.id;
           const { rating, comment, time } = req.body;
-        //   console.log(rating, comment, time);
+          console.log(rating, comment, time);
         const query = { _id: ObjectId(id) };
         const updatedDoc = {
           $set: {
-                rating: `${rating}`,
-                comment: `${comment}`,
-              time: `${time}`
+                rating,
+                comment,
+                time
           },
         };
         const result = await reviewsCollection.updateOne(query, updatedDoc);
