@@ -133,6 +133,23 @@ async function run() {
           res.send(result);
       })
 
+    //   update a single review
+      app.patch("/reviews/:id", verifyJWT, async (req, res) => {
+        const id = req.params.id;
+          const { rating, comment, time } = req.body;
+        //   console.log(rating, comment, time);
+        const query = { _id: ObjectId(id) };
+        const updatedDoc = {
+          $set: {
+                rating: `${rating}`,
+                comment: `${comment}`,
+              time: `${time}`
+          },
+        };
+        const result = await reviewsCollection.updateOne(query, updatedDoc);
+        res.send(result);
+      });
+
     //   -----------------------------------    //
   } finally {
   }
