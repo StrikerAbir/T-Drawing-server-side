@@ -93,6 +93,8 @@ async function run() {
     //   get all reviews in ascending order for individual user
     app.get("/reviews", verifyJWT, async (req, res) => {
       const email = req.query.email;
+      const currentPage = parseInt(req.query.currentPage);
+      const perPage = parseInt(req.query.perPage);
       const decoded = req.decoded;
       if (decoded.email !== email) {
         res.status(403).send({ message: "Forbidden Access" });
@@ -102,10 +104,12 @@ async function run() {
         query = { userEmail: email };
       }
       console.log(query);
-
+      const pagination = reviewsCollection.find(query);
       const cursor = reviewsCollection.find(query).sort({ time: -1 });
-      const result = await cursor.toArray();
-      res.send(result);
+      const reviews = await cursor.skip(currentPage * perPage).limit(perPage).toArray();
+      const total = await pagination.toArray();
+      const count = total.length;
+      res.send({reviews,count});
     });
 
     //   get all reviews in ascending order for individual service
