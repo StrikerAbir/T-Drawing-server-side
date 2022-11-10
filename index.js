@@ -115,10 +115,18 @@ async function run() {
     //   get all reviews in ascending order for individual service
     app.get("/reviews/all", async (req, res) => {
       const sid = req.query.sid;
+      const currentPage = parseInt(req.query.currentPage);
+      const perPage = parseInt(req.query.perPage);
       const query = { serviceId: sid };
+      const pagination = reviewsCollection.find(query);
       const cursor = reviewsCollection.find(query).sort({ time: -1 });
-      const result = await cursor.toArray();
-      res.send(result);
+      const reviews = await cursor
+        .skip(currentPage * perPage)
+        .limit(perPage)
+        .toArray();
+      const total = await pagination.toArray();
+      const count = total.length;
+      res.send({ reviews, count });
     });
 
     //get a single reviews
